@@ -1,0 +1,24 @@
+library(readr)
+
+games <- read_csv('games.csv')
+saveRDS(games, 'games.rds')
+player_play <- read_csv('player_play.csv')
+saveRDS(player_play, 'player_play.rds')
+plays <- read_csv('plays.csv')
+saveRDS(plays, 'plays.rds')
+for (week in 1:9) {
+  # Create file names dynamically
+  csv_file <- paste0('tracking_week_', week, '.csv')
+  rds_file <- paste0('tracking_week_', week, '.rds')
+  
+  # Read the CSV
+  tracking_week <- read_csv(csv_file)
+  
+  # Save as RDS
+  saveRDS(tracking_week, rds_file)
+  
+  # Assign to a variable in the global environment
+  assign(paste0('tracking_week_', week), tracking_week)
+}
+
+
