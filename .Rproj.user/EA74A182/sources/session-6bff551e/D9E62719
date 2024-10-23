@@ -1,0 +1,26 @@
+{
+    "id": "D9E62719",
+    "path": "~/2025 NFL Big Data Bowl/Data.R",
+    "project_path": "Data.R",
+    "type": "r_source",
+    "hash": "3618552454",
+    "contents": "",
+    "dirty": false,
+    "created": 1729714047344.0,
+    "source_on_save": false,
+    "relative_order": 1,
+    "properties": {
+        "source_window_id": "",
+        "Source": "Source",
+        "cursorPosition": "33,1",
+        "scrollLine": "2"
+    },
+    "folds": "",
+    "lastKnownWriteTime": 1729715090,
+    "encoding": "UTF-8",
+    "collab_server": "",
+    "source_window": "",
+    "last_content_update": 1729715090065,
+    "read_only": false,
+    "read_only_alternatives": []
+}
