@@ -4,7 +4,6 @@ library(dplyr)
 # Reading in games data
 games <- read_csv("C:/Users/maxde/OneDrive/Documents/2025 NFL Big Data Bowl/bigdatabowl-2025/data/games.csv")
 
-
 # Reading in player info for each play
 player_play <- read_csv('C:/Users/maxde/OneDrive/Documents/2025 NFL Big Data Bowl/bigdatabowl-2025/data/player_play.csv')
 

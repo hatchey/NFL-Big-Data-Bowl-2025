@@ -1,9 +1,11 @@
 library(caret)
 library(tidyverse)
 
+#Filtering the predictions df for plays where Bills are on defense
 buffalo_bill_xcoverage_preds <- game_plays_w_preds %>%
   filter(defensiveTeam == 'BUF')
 
+#Creating a df of Bills most frequent presnap looks and actual coverages and how good they perform in those coverages
 buffalo_bills_xcoverage <- buffalo_bill_xcoverage_preds %>%
   group_by(predictions, label) %>%
   summarize(Frequency = n(),
@@ -11,6 +13,7 @@ buffalo_bills_xcoverage <- buffalo_bill_xcoverage_preds %>%
   mutate(Percentage = Frequency / sum(Frequency) * 100) %>%
   filter(Percentage > 1)
 
+#Creating a df of Bills most frequent coverages and how good they perform in those coverages
 buffalo_bills_coverage <- buffalo_bill_xcoverage_preds %>% 
   group_by(label) %>%
   summarize(Frequency = n(), 
@@ -18,13 +21,15 @@ buffalo_bills_coverage <- buffalo_bill_xcoverage_preds %>%
   mutate(Percentage = Frequency / sum(Frequency) * 100) %>%
   filter(Percentage > 1)
 
+#Filtering for only top 8 presnap/actual coverage looks
 buffalo_bills_xcoverage_head <- buffalo_bills_xcoverage %>% 
   dplyr::arrange(dplyr::desc(Percentage)) %>%
   head(8)
 
+#Turning Bills coverage dataframe into gt table
 bills_coverage_gt <- buffalo_bills_coverage %>%
   gt::gt() %>%
-  tab_header(title = md("**Buffalo Bills Coverage Frequencies**")) %>%
+  tab_header(title = md("**Buffalo Bills' Coverage Frequencies**")) %>%
   cols_label(
     label = md("**Coverage**"),
     Frequency = md("**Frequency**"),
@@ -52,9 +57,10 @@ bills_coverage_gt <- buffalo_bills_coverage %>%
   tab_options(data_row.padding = px(0.5), source_notes.font.size = 10) %>%
   gtsave(filename = "bills_coverage.html")
 
+#Turning Bills xCoverage df into gt table
 bills_xcoverage_gt <- buffalo_bills_xcoverage_head %>%
   gt::gt() %>%
-  tab_header(title = md("**Buffalo Bills Presnap vs Postsnap Coverage Frequencies**")) %>%
+  tab_header(title = md("**Buffalo Bills' Presnap vs Postsnap Coverage Frequencies**")) %>%
   cols_label(
     predictions = md("**xCoverage**"),
     label = md("**Coverage**"),

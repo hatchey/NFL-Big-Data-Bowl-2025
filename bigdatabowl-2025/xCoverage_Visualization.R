@@ -1,5 +1,6 @@
 library(gt)
 
+#Turning the League Average Defensive ACP df into a gt table
 def_team_xcoverage_gt <- def_team_xcoverage %>%
   mutate(defensiveTeam = purrr::map(defensiveTeam, gt::html)) %>%
   gt::gt() %>%
@@ -30,6 +31,7 @@ def_team_xcoverage_gt <- def_team_xcoverage %>%
   tab_options(data_row.padding = px(0.5), source_notes.font.size = 10) %>%
   gtsave(filename = "defensive_xcoverage.html")
 
+#Turning the League Average Offensive ACP df into a gt table
 off_team_xcoverage_gt <- off_team_xcoverage %>%
   mutate(possessionTeam = purrr::map(possessionTeam, gt::html)) %>%
   gt::gt() %>%
