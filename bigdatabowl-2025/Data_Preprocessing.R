@@ -17,10 +17,10 @@ pass_plays_clean <- plays %>%
                 #Removing game where tracking data isn't present for one team on offense and one team on defense
                 gameId != 2022091808)
 
-# Joining with the player info for each play
+# Joining with player play level df
 player_plays_clean <- pass_plays_clean %>%
   dplyr::left_join(player_play, by = c('gameId', 'playId')) %>%
-  # Creating a column to determine whether players is defensive
+  # Creating a column to determine whether players is defensive player
   dplyr::mutate(is_def = ifelse(teamAbbr == defensiveTeam, 1, 0)) %>%
   # Joining with player info data frame 
   dplyr::left_join(players %>% dplyr::select(nflId, displayName, position), by = ('nflId'))
@@ -46,8 +46,8 @@ prepare_tracking_data <- function(track_df, plays_df){
                   !is.na(nflId)) %>%
     # Joining in the ball tracking data df
     dplyr::left_join(train_ball_xy, by = c('gameId', 'playId')) %>% 
-    # Normalizing the x, y, direction, and oreination, create sin and cos oreinatoin, 
-    # create distance from the ball columns and angle to the ball columns
+    # Normalizing the x, y, direction, and orientation, create sin and cos orientation, 
+    # create distance from the ball columns and orientation angle to the ball columns
     dplyr::mutate(x = ifelse(playDirection == "left", 120 - x, x),
                   y = ifelse(playDirection == "left", 160 / 3 - y, y),
                   dir = ifelse(playDirection == "left", dir + 180, dir),
@@ -128,11 +128,10 @@ filter_defense_plays_frames <- function(df) {
   # Filter for frames with exactly 11 defensive players
   valid_defense_frames <- valid_defense_frames[num_def_players == 11, frameId]
   
-  # Ensure that we reference 'frameId' as a column correctly
   df[frameId %in% valid_defense_frames]
 }
 
-prepare_tensor_data_keras <- function(df) {
+prepare_tensor_data <- function(df) {
   setDT(df)  # Convert to data.table
   
   # Define the maximum number of frames to keep per play
@@ -167,13 +166,13 @@ prepare_tensor_data_keras <- function(df) {
     play <- playIds[i]
     
     # Filter data for the current play
-    play_df <- df[unique_playId == play]
+    play_dt <- df[unique_playId == play]
     
-    # Filter for offensive and defensive features
-    off_features_dt <- play_df[is_def != 1 & position %in% c('WR', 'TE', 'RB', 'FB')]
-    def_features_dt <- play_df[is_def == 1]
+    # Create offensive player and defensive player data table
+    off_features_dt <- play_dt[is_def != 1 & position %in% c('WR', 'TE', 'RB', 'FB')]
+    def_features_dt <- play_dt[is_def == 1]
     
-    # Perform the left join with suffixes
+    # Join the defensive player and offensive player data tables 
     rel_features_dt <- merge(
       def_features_dt, 
       off_features_dt, 
@@ -183,13 +182,13 @@ prepare_tensor_data_keras <- function(df) {
       allow.cartesian = TRUE
     )
     
-    # Create the additional columns
+    # Create the columns for the difference x and y coordinate difference between the offensive and defensive player
     rel_features_dt[, `:=`(
       diff_x = x_off - x, 
       diff_y = y_off - y
     )]
     
-    # Select the relevant columns and arrange the data by unique_playId, frameId, and nflId
+    # Select the feature columns and arrange the data by frameId, and nflId
     rel_features_dt <- rel_features_dt[, .(unique_playId, nflId, frameId, dist_from_ball_x, dist_from_ball_y,
                                            diff_x, diff_y, o_to_ball, is_def)]
     setorder(rel_features_dt, frameId, nflId)
@@ -203,7 +202,7 @@ prepare_tensor_data_keras <- function(df) {
       defenders <- uniqueN(rel_features_dt$nflId)
       n_offense <- nrow(rel_features_dt) / (n_frames * defenders)
       
-      # Convert data to matrix
+      # Convert data table into a matrix
       play_array <- array(as.matrix(rel_features_dt[, -c("unique_playId", "nflId", "frameId", "is_def")]))
       
       # Reshape the play matrix to a 4D array (time_steps, defenders, n_offense, features)
@@ -232,13 +231,13 @@ prepare_tensor_data_keras <- function(df) {
   ))
 }
 # Prepare training and testing data
-train_tensors <- prepare_tensor_data_keras(training_model_features)
+train_tensors <- prepare_tensor_data(training_model_features)
 train_x <- train_tensors$x
 train_mask <- train_tensors$mask
 train_y <- train_tensors$y - 1
 train_playId <- train_tensors$playId
 
-test_tensors <- prepare_tensor_data_keras(testing_model_features)
+test_tensors <- prepare_tensor_data(testing_model_features)
 test_x <- test_tensors$x
 test_mask <- test_tensors$mask
 test_y <- test_tensors$y - 1

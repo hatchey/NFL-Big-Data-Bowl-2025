@@ -1,8 +1,7 @@
-library(tensorflow)
 library(keras)
 
 CoverageClassificationNN <- function(input_shape, mask_shape) {
-  inputs <- layer_input(shape = input_shape)  # input_shape = (timesteps, height, width, channels)
+  inputs <- layer_input(shape = input_shape)
   input_mask <- layer_input(shape = mask_shape)
   
   # Apply 2D convolution to each frame independently
@@ -82,7 +81,7 @@ model <- CoverageClassificationNN(input_shape = c(250, 11, 5, 5), mask_shape = c
 set.seed(1995)
 set_random_seed(1995)
 
-# Cross-validation loop
+# Cross-validation folds
 folds <- splitTools::create_folds(
   y = as.integer(train_y),
   k = 5,
@@ -117,8 +116,9 @@ for (fold in seq_along(folds)) {
     metrics = c("accuracy")
   ) 
   
+  #callback for checkpoints to save the model with the best val accuracy
   checkpoint <- callback_model_checkpoint(
-    filepath = sprintf("best_model_fold_%d.hdf5", fold),
+    filepath = sprintf("C:/Users/maxde/OneDrive/Documents/2025 NFL Big Data Bowl/bigdatabowl-2025/best_model_fold_%d.hdf5", fold),
     monitor = "val_loss",
     save_best_only = TRUE,
     save_weights_only = TRUE,
@@ -126,6 +126,7 @@ for (fold in seq_along(folds)) {
     verbose = 1
   )
   
+  #callback to print training and validation accuracy of each epoch
   print_metrics <- callback_lambda(
     on_epoch_end = function(epoch, logs) {
       cat(sprintf(
@@ -137,12 +138,14 @@ for (fold in seq_along(folds)) {
     }
   ) 
   
+  #callback to stop training on fold if validation accuracy hasn't improved after 10 epoch to avoid overfitting
   early_stopping <- callback_early_stopping(
     monitor = "val_loss",
     patience = 10,
     restore_best_weights = TRUE
   )
   
+  #schedule to reduce learning rate by gamma of 0.983 each epoch
   step_lr <- function(epoch, lr) {
     gamma <- 0.983
     step_size <- 1
@@ -150,6 +153,7 @@ for (fold in seq_along(folds)) {
     return(new_lr)
   }
   
+  #learning rate scheduler to reduce learning rate
   lr_scheduler <- callback_learning_rate_scheduler(schedule = step_lr)
   
   # Train the model

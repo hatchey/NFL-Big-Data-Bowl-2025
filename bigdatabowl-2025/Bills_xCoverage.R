@@ -1,12 +1,7 @@
 library(caret)
 library(tidyverse)
 
-game_plays <- plays %>%
-  dplyr::left_join(games, by = 'gameId') %>%
-  dplyr::mutate(unique_playId = paste(gameId, playId, sep = '_'))
-
-buffalo_bill_xcoverage_preds <- presnap_coverage_stats_mid_2022_df %>% 
-  left_join(game_plays, by = c('mid_season_2022_playIds' = 'unique_playId')) %>%
+buffalo_bill_xcoverage_preds <- game_plays_w_preds %>%
   filter(defensiveTeam == 'BUF')
 
 buffalo_bills_xcoverage <- buffalo_bill_xcoverage_preds %>%
