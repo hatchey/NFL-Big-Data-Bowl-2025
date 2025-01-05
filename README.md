@@ -4,7 +4,7 @@ This repository contains code and documentation for a Convolutional Neural Netwo
 
 ## Project Overview
 
-Defensive coverage prediction is a challenging task in football analytics, providing valuable insights for teams and analysts. This project leverages modern deep learning techniques to analyze the rich temporal and spatial features of pre-snap data, including player positioning, motion, and contextual game information.
+Defensive coverage prediction is a challenging task in football analytics, providing valuable insights for teams and analysts. This project leverages modern deep learning techniques to analyze the rich temporal and spatial features of pre-snap data, including player positioning, movement and orientation.
 
 ## Objectives
 
@@ -25,7 +25,7 @@ Defensive coverage prediction is a challenging task in football analytics, provi
 1. Standardize the tracking data to remove conflation and any outliers
 2. Transform player tracking data into a 5D array with dimensions consisting of plays by frames by defensive players by offensive skill position players by features
 3. Removed frames before the offensive line was set, after the snap, and when the defense didn't have 11 players on the field 
-4. Include derived features such as defenders x and y positioning (vertical distance from LOS and horizontal distance from ball), defenders x and y positioning relative to each offensive player and defenders oreination relative to the ball
+4. Include derived features: defenders x and y positioning (vertical distance from LOS and horizontal distance from ball), defenders x and y positioning relative to each offensive player and defenders oreination relative to the ball
 5. Encode coverage types as categorical labels.
 
 ## Model Architecture
